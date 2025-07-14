@@ -41,16 +41,57 @@ wine-quality-analysis/
 
 ## Installation
 
+### Quick Start (Recommended)
+
+Run this single command to clone, setup, and install everything:
+
+```bash
+git clone https://github.com/jordanaftermidnight/wine-quality-analysis.git && cd wine-quality-analysis && ./setup.sh
+```
+
+### Manual Installation
+
+If you prefer to install manually or the setup script doesn't work:
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/jordanaftermidnight/wine-quality-analysis.git
    cd wine-quality-analysis
    ```
 
-2. Install dependencies:
+2. Create a virtual environment (recommended):
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
+
+4. Make scripts executable:
+   ```bash
+   chmod +x *.sh
+   ```
+
+5. Verify installation:
+   ```bash
+   python3 test_setup.py
+   ```
+
+### What the Setup Script Does
+
+The `setup.sh` script automatically:
+- ✅ Checks Python 3.7+ installation
+- ✅ Verifies pip is installed
+- ✅ Clones the repository (if needed)
+- ✅ Creates a virtual environment
+- ✅ Installs all dependencies
+- ✅ Verifies all packages are installed correctly
+- ✅ Checks dataset availability
+- ✅ Sets execution permissions on scripts
+- ✅ Creates output directories
 
 ## Usage
 
@@ -175,6 +216,24 @@ The analysis reveals that:
 - **Regression**: RMSE ~0.65, R² ~0.65
 - **Classification**: F1 Score ~0.85, ROC AUC ~0.90
 - **Cross-validation**: 5-fold CV with systematic hyperparameter tuning
+
+## Complete Example: From Zero to Analysis
+
+Here's a complete walkthrough from a fresh terminal:
+
+```bash
+# 1. Clone and setup (one command does everything!)
+git clone https://github.com/jordanaftermidnight/wine-quality-analysis.git && cd wine-quality-analysis && ./setup.sh
+
+# 2. Run the analysis
+./run_analysis.sh
+
+# 3. View results
+ls outputs/
+# You'll see: images/ models/ analysis_report.txt analysis_report.json
+```
+
+That's it! The analysis is complete and all results are in the `outputs/` directory.
 
 ## Contributors
 
