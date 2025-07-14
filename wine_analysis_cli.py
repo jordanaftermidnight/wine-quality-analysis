@@ -123,7 +123,7 @@ class WineQualityAnalyzer:
             if not os.path.exists(self.data_path):
                 raise FileNotFoundError(f"Dataset not found at {self.data_path}")
             
-            self.df = pd.read_csv(self.data_path)
+            self.df = pd.read_csv(self.data_path, sep=';')
             
             if self.df.empty:
                 raise pd.errors.EmptyDataError("Dataset is empty")
@@ -730,21 +730,28 @@ class WineQualityAnalyzer:
         print("SAVING BEST MODELS")
         print("="*50)
         
-        # Save best regression model
-        best_reg_model = max(self.regression_results.items(), key=lambda x: x[1]['r2'])
-        joblib.dump(best_reg_model[1]['model'], 
-                   os.path.join(self.output_dir, 'models', 'best_regression_model.pkl'))
-        print(f"Saved best regression model ({best_reg_model[0]}) with R² = {best_reg_model[1]['r2']:.4f}")
+        # Save best regression model if available
+        if hasattr(self, 'regression_results') and self.regression_results:
+            valid_results = {k: v for k, v in self.regression_results.items() if 'error' not in v}
+            if valid_results:
+                best_reg_model = max(valid_results.items(), key=lambda x: x[1]['r2'])
+                joblib.dump(best_reg_model[1]['model'], 
+                           os.path.join(self.output_dir, 'models', 'best_regression_model.pkl'))
+                print(f"Saved best regression model ({best_reg_model[0]}) with R² = {best_reg_model[1]['r2']:.4f}")
         
-        # Save best classification model
-        best_clf_model = max(self.classification_results.items(), key=lambda x: x[1]['f1'])
-        joblib.dump(best_clf_model[1]['model'], 
-                   os.path.join(self.output_dir, 'models', 'best_classification_model.pkl'))
-        print(f"Saved best classification model ({best_clf_model[0]}) with F1 = {best_clf_model[1]['f1']:.4f}")
+        # Save best classification model if available
+        if hasattr(self, 'classification_results') and self.classification_results:
+            valid_results = {k: v for k, v in self.classification_results.items() if 'error' not in v}
+            if valid_results:
+                best_clf_model = max(valid_results.items(), key=lambda x: x[1]['f1'])
+                joblib.dump(best_clf_model[1]['model'], 
+                           os.path.join(self.output_dir, 'models', 'best_classification_model.pkl'))
+                print(f"Saved best classification model ({best_clf_model[0]}) with F1 = {best_clf_model[1]['f1']:.4f}")
         
-        # Save scaler
-        joblib.dump(self.scaler, os.path.join(self.output_dir, 'models', 'scaler.pkl'))
-        print("Saved feature scaler")
+        # Save scaler if available
+        if hasattr(self, 'scaler') and self.scaler is not None:
+            joblib.dump(self.scaler, os.path.join(self.output_dir, 'models', 'scaler.pkl'))
+            print("Saved feature scaler")
 
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """Load configuration from YAML file or use defaults."""
@@ -834,11 +841,11 @@ def main():
     print("ANALYSIS COMPLETE!")
     print("="*50)
     print(f"Results saved to: {output_dir}/")
-    print("- Images: {output_dir}/images/")
-    print("- Models: {output_dir}/models/")
+    print(f"- Images: {output_dir}/images/")
+    print(f"- Models: {output_dir}/models/")
     if config['output']['generate_report']:
-        print("- Report: {output_dir}/analysis_report.txt")
-        print("- JSON Report: {output_dir}/analysis_report.json")
+        print(f"- Report: {output_dir}/analysis_report.txt")
+        print(f"- JSON Report: {output_dir}/analysis_report.json")
 
 if __name__ == "__main__":
     main()
