@@ -25,19 +25,19 @@ echo ""
 
 # Default: run all analyses
 if [ "$1" == "help" ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
-    python wine_analysis_cli.py --help
+    python3 wine_analysis_cli.py --help
 elif [ "$1" == "regression" ]; then
     echo "Running regression analysis only..."
-    python wine_analysis_cli.py --task regression
+    python3 wine_analysis_cli.py --task regression
 elif [ "$1" == "classification" ]; then
     echo "Running classification analysis only..."
-    python wine_analysis_cli.py --task classification
+    python3 wine_analysis_cli.py --task classification
 elif [ "$1" == "tune" ]; then
     echo "Running full analysis with hyperparameter tuning..."
-    python wine_analysis_cli.py --tune
+    python3 wine_analysis_cli.py --tune
 else
     echo "Running full analysis (regression + classification)..."
-    python wine_analysis_cli.py
+    python3 wine_analysis_cli.py
 fi
 
 echo ""

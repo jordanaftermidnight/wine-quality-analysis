@@ -346,6 +346,103 @@ class WineQualityAnalyzer:
         plt.close()
         print(f"\nSaved feature importance plot to outputs/images/feature_importance_{task}.png")
     
+    def pca_analysis(self, task='regression'):
+        """Compare model performance with and without PCA"""
+        print(f"\n" + "="*50)
+        print(f"PCA ANALYSIS ({task})")
+        print("="*50)
+        
+        # Determine target variable
+        if task == 'classification':
+            y = (self.df['quality'] >= 6).astype(int)
+        else:
+            y = self.df['quality']
+        
+        # Get the best model type
+        if task == 'regression':
+            best_model_name = max(self.regression_results.items(), key=lambda x: x[1]['r2'])[0]
+            if 'Random Forest' in best_model_name:
+                model_class = RandomForestRegressor
+            else:
+                model_class = GradientBoostingRegressor
+            scoring = 'r2'
+        else:
+            best_model_name = max(self.classification_results.items(), key=lambda x: x[1]['f1'])[0]
+            if 'Random Forest' in best_model_name:
+                model_class = RandomForestClassifier
+            else:
+                model_class = GradientBoostingClassifier
+            scoring = 'f1'
+        
+        # Test different numbers of components
+        n_components_list = [2, 3, 5, 7, 9, 11]
+        results = []
+        
+        for n_comp in n_components_list:
+            if n_comp == 11:  # Original features
+                X_train_pca = self.X_train_scaled
+                X_test_pca = self.X_test_scaled
+                variance_ratio = 1.0
+            else:
+                pca = PCA(n_components=n_comp)
+                X_train_pca = pca.fit_transform(self.X_train_scaled)
+                X_test_pca = pca.transform(self.X_test_scaled)
+                variance_ratio = pca.explained_variance_ratio_.sum()
+            
+            # Train model
+            model = model_class(random_state=RANDOM_SEED)
+            cv_scores = cross_val_score(model, X_train_pca, self.y_train, cv=5, scoring=scoring)
+            model.fit(X_train_pca, self.y_train)
+            
+            # Test performance
+            if task == 'regression':
+                test_score = r2_score(self.y_test, model.predict(X_test_pca))
+            else:
+                test_score = f1_score(self.y_test, model.predict(X_test_pca))
+            
+            results.append({
+                'n_components': n_comp,
+                'variance_explained': variance_ratio,
+                'cv_score': cv_scores.mean(),
+                'test_score': test_score
+            })
+            
+            print(f"\nComponents: {n_comp} (Variance: {variance_ratio:.3f})")
+            print(f"  CV {scoring}: {cv_scores.mean():.4f} ± {cv_scores.std():.4f}")
+            print(f"  Test {scoring}: {test_score:.4f}")
+        
+        # Create visualization
+        plt.figure(figsize=(10, 6))
+        components = [r['n_components'] for r in results]
+        cv_scores = [r['cv_score'] for r in results]
+        test_scores = [r['test_score'] for r in results]
+        
+        plt.plot(components, cv_scores, 'b-o', label='CV Score')
+        plt.plot(components, test_scores, 'r-s', label='Test Score')
+        plt.xlabel('Number of Components')
+        plt.ylabel(f'{scoring.upper()} Score')
+        plt.title(f'PCA Analysis - {best_model_name} ({task.capitalize()})')
+        plt.legend()
+        plt.grid(True)
+        plt.xticks(components)
+        plt.tight_layout()
+        plt.savefig(os.path.join(self.output_dir, 'images', f'pca_analysis_{task}.png'))
+        plt.close()
+        print(f"\nSaved PCA analysis plot to outputs/images/pca_analysis_{task}.png")
+        
+        # Analysis conclusion
+        best_result = max(results, key=lambda x: x['test_score'])
+        print(f"\n{'='*50}")
+        print(f"PCA ANALYSIS CONCLUSION")
+        print(f"{'='*50}")
+        print(f"Best performance: {best_result['n_components']} components with {scoring}={best_result['test_score']:.4f}")
+        if best_result['n_components'] == 11:
+            print("PCA did not improve model performance. All original features are valuable.")
+            print("This suggests each chemical property contributes unique information to wine quality.")
+        else:
+            print(f"PCA improved performance by reducing to {best_result['n_components']} components.")
+            print(f"This captures {best_result['variance_explained']:.1%} of variance while improving generalization.")
+    
     def save_best_models(self):
         """Save the best models"""
         import joblib
@@ -396,6 +493,7 @@ def main():
         analyzer.prepare_data(task='regression')
         analyzer.train_regression_models()
         analyzer.feature_importance_analysis(task='regression')
+        analyzer.pca_analysis(task='regression')
         
         if args.tune:
             analyzer.hyperparameter_tuning(model_name='Random Forest', task='regression')
@@ -405,6 +503,7 @@ def main():
         analyzer.prepare_data(task='classification')
         analyzer.train_classification_models()
         analyzer.feature_importance_analysis(task='classification')
+        analyzer.pca_analysis(task='classification')
         
         if args.tune:
             analyzer.hyperparameter_tuning(model_name='Random Forest', task='classification')
