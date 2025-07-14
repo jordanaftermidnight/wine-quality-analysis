@@ -1,0 +1,55 @@
+# Wine Quality Analysis Configuration File
+# ========================================
+
+# Data settings
+data:
+  path: "data/winequality-red.csv"
+  quality_threshold: 6  # For binary classification
+  
+# Model training settings
+training:
+  test_size: 0.2
+  random_seed: 42
+  cv_folds: 5
+  n_jobs: -1  # Use all CPU cores
+  
+# Class imbalance handling
+imbalance:
+  handle_imbalance: true
+  method: "SMOTE"  # Options: SMOTE, class_weight, none
+  
+# Model hyperparameters
+models:
+  random_forest:
+    n_estimators: [100, 200, 300]
+    max_depth: [10, 20, null]
+    min_samples_split: [2, 5, 10]
+    min_samples_leaf: [1, 2, 4]
+    
+  gradient_boosting:
+    n_estimators: [100, 200]
+    learning_rate: [0.01, 0.1, 0.2]
+    max_depth: [3, 5, 7]
+    subsample: [0.8, 1.0]
+    
+# Output settings
+output:
+  dir: "outputs"
+  save_models: true
+  save_plots: true
+  generate_report: true
+  
+# Logging settings
+logging:
+  level: "INFO"
+  file: "wine_analysis.log"
+  
+# PCA settings
+pca:
+  components_to_test: [2, 3, 5, 7, 9, 11]
+  
+# Visualization settings
+visualization:
+  figure_size: [12, 8]
+  dpi: 100
+  style: "whitegrid"
