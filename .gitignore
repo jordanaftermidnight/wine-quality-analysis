@@ -104,3 +104,6 @@ models/*
 # Images directory (except .gitkeep)
 images/*
 !images/.gitkeep
+
+# Python cache
+__pycache__/
