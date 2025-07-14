@@ -23,6 +23,9 @@ wine-quality-analysis/
 │   └── .gitkeep                     # Generated visualizations
 ├── models/
 │   └── .gitkeep                     # Saved trained models
+├── outputs/                         # Terminal method output directory
+│   ├── images/                      # Generated plots from CLI
+│   └── models/                      # Saved models from CLI
 ├── utils/
 │   ├── __init__.py
 │   └── visualization.py             # Custom plotting functions
@@ -30,7 +33,10 @@ wine-quality-analysis/
 ├── LICENSE
 ├── README.md
 ├── requirements.txt                 # Python dependencies
-└── wine_quality_analysis.ipynb     # Main analysis notebook
+├── wine_quality_analysis.ipynb      # Main analysis notebook
+├── wine_analysis_cli.py            # Terminal-based analysis script
+├── run_analysis.sh                 # Terminal method launcher
+└── start_jupyter.sh                # JupyterLab launcher
 ```
 
 ## Installation
@@ -48,27 +54,70 @@ wine-quality-analysis/
 
 ## Usage
 
-### **Running the Analysis**
+### **Method 1: JupyterLab (Interactive)**
 
-**Method 1: Jupyter Lab (Recommended)**
+Run the provided script to start JupyterLab:
 ```bash
-cd wine-quality-analysis
-jupyter lab
+./start_jupyter.sh
 ```
 
-**Method 2: Classic Jupyter Notebook**
+Or manually start JupyterLab:
 ```bash
 cd wine-quality-analysis
-jupyter notebook
+jupyter lab wine_quality_analysis.ipynb
 ```
 
-**Method 3: VS Code**
-- Open the project folder in VS Code
-- Click on `wine_quality_analysis.ipynb`
-- Run cells directly in VS Code
+**Alternative Jupyter Options:**
+- Classic Jupyter Notebook: `jupyter notebook wine_quality_analysis.ipynb`
+- VS Code: Open the project folder and run cells directly in VS Code
+
+### **Method 2: Terminal (Command Line)**
+
+Run the analysis directly from the terminal:
+
+```bash
+# Run full analysis (recommended for first time)
+./run_analysis.sh
+
+# Run only regression analysis
+./run_analysis.sh regression
+
+# Run only classification analysis
+./run_analysis.sh classification
+
+# Run with hyperparameter tuning (takes longer)
+./run_analysis.sh tune
+
+# See all options
+./run_analysis.sh help
+```
+
+Or use the Python script directly:
+```bash
+# Basic usage - runs all analyses
+python wine_analysis_cli.py
+
+# Specific task
+python wine_analysis_cli.py --task regression
+python wine_analysis_cli.py --task classification
+
+# With hyperparameter tuning
+python wine_analysis_cli.py --tune
+
+# Custom paths
+python wine_analysis_cli.py --data path/to/data.csv --output path/to/output
+```
+
+The terminal method will:
+- Load and analyze the wine quality dataset
+- Perform exploratory data analysis with visualizations
+- Train multiple regression and classification models
+- Compare model performance
+- Save the best models and visualizations to the `outputs/` directory
 
 ### **Expected Output**
-When you run the notebook, you'll see:
+
+When you run the analysis (either method), you'll see:
 - **Distribution plots** of wine quality scores
 - **Correlation heatmaps** between chemical features
 - **Box plots** showing feature-quality relationships
@@ -77,7 +126,7 @@ When you run the notebook, you'll see:
 - **PCA analysis and dimensionality reduction plots**
 - **Learning curves and hyperparameter tuning results**
 
-### **Notebook Contents**
+### **Analysis Contents**
 - Data exploration and visualization
 - Feature engineering and preprocessing
 - Model training and evaluation (8 different algorithms)
@@ -91,6 +140,7 @@ When you run the notebook, you'll see:
 - **No plots visible**: Ensure `%matplotlib inline` is set
 - **Import errors**: Run `pip install -r requirements.txt`
 - **404 errors**: Make sure you're in the correct directory
+- **Permission denied on scripts**: Run `chmod +x *.sh`
 
 ## Dataset
 
