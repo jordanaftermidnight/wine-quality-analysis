@@ -107,3 +107,6 @@ images/*
 
 # Python cache
 __pycache__/
+
+# Output directory from CLI analysis
+outputs/
